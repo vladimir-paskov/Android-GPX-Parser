@@ -1,19 +1,6 @@
 # Android-GPX-Parser
 A GPX Parser for Android
 
-# Install from Maven
-
-```
-repositories {
-    jcenter()
-}
-```
-
-
-```
-implementation 'net.federicomatera.agpxp:agpxp:1.0.0'
-```
-
 # Instance
 ```
 val gpx = Gpx(
