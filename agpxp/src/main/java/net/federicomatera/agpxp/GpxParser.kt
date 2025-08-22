@@ -22,6 +22,7 @@ package net.federicomatera.agpxp
 
 import net.federicomatera.agpxp.models.*
 import net.federicomatera.agpxp.types.FixType
+import org.w3c.dom.Element
 import org.w3c.dom.Node
 import org.xml.sax.SAXException
 import java.io.IOException
@@ -46,6 +47,7 @@ class GpxParser {
 
         var version: String? = null
         var creator: String? = null
+        var metadata: GpxMetadata? = null
         val wayPoints = mutableListOf<WayPoint>()
         val tracks = mutableListOf<Track>()
         val routes = mutableListOf<Route>()
@@ -68,6 +70,7 @@ class GpxParser {
         for (idx in 0 until nodes.length) {
             val currentNode = nodes.item(idx)
             when (currentNode.nodeName) {
+                METADATA_NODE -> metadata = parseMetaData(currentNode)
                 WPT_NODE -> wayPoints.add(parseWayPoint(currentNode))
                 TRK_NODE -> tracks.add(parseTrack(currentNode))
                 RTE_NODE -> routes.add(parseRoute(currentNode))
@@ -77,10 +80,40 @@ class GpxParser {
         return Gpx(
             creator = creator,
             version = version,
+            metadata = metadata,
             wayPoints = wayPoints,
             tracks = tracks,
             routes = routes
         )
+    }
+
+    private fun parseMetaData(node: Node): GpxMetadata? {
+        var link: Link? = null
+        var time: Date? = null
+
+        val nodes = node.childNodes
+        if(nodes != null) {
+            for (idx in 0 until nodes.length) {
+                val currentNode = nodes.item(idx)
+                when(currentNode.nodeName) {
+                    LINK_NODE -> {
+                        val linkElement = currentNode as Element
+                        val href = linkElement.getAttribute("href")
+
+                        val text = linkElement
+                            .getElementsByTagName("text")
+                            .item(0)
+                            ?.textContent
+                            ?.trim()
+
+                        link = Link(href, text)
+                    }
+                    TIME_NODE -> time = dateFormat.parse(currentNode.firstChild.nodeValue)
+                }
+            }
+        }
+
+        return GpxMetadata(link, time)
     }
 
     private fun parseTrack(node: Node): Track {
@@ -203,7 +236,7 @@ class GpxParser {
                     GEOIDHEIGHT_NODE -> geoIdHeight = currentNode.firstChild.nodeValue.toDouble()
                     SYM_NODE -> sym = currentNode.firstChild.nodeValue
                     FIX_NODE -> fix =
-                        FixType.values().first { it.value == node.firstChild.nodeValue }
+                        FixType.entries.first { it.value == node.firstChild.nodeValue }
                     TYPE_NODE -> type = currentNode.firstChild.nodeValue
                     SAT_NODE -> sat = currentNode.firstChild.nodeValue.toInt()
                     HDOP_NODE -> hDop = currentNode.firstChild.nodeValue.toDouble()

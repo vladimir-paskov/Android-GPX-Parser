@@ -132,12 +132,14 @@ class GpxWriter {
     private fun Node.addMetadataToGPXNode(metadata: GpxMetadata) {
         val metadataNode: Node = ownerDocument.createElement(METADATA_NODE).apply {
             val linkNode: Node = ownerDocument.createElement(LINK_NODE).apply {
-                addAttribute("href", metadata.link.href)
-                appendChild(TEXT_NODE, metadata.link.text)
+                addAttribute("href", metadata.link?.href)
+                appendChild(TEXT_NODE, metadata.link?.text)
             }
 
             appendChild(linkNode)
-            appendChild(TIME_NODE, dateFormat.format(metadata.time))
+            metadata.time?.let { time ->
+                appendChild(TIME_NODE, dateFormat.format(time))
+            }
         }
 
         appendChild(metadataNode)
