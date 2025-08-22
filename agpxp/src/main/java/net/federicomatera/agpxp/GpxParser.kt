@@ -20,6 +20,7 @@
  */
 package net.federicomatera.agpxp
 
+import androidx.annotation.VisibleForTesting
 import net.federicomatera.agpxp.models.*
 import net.federicomatera.agpxp.types.FixType
 import org.w3c.dom.Element
@@ -34,7 +35,10 @@ import javax.xml.parsers.ParserConfigurationException
 
 class GpxParser {
 
-    private val dateFormat by lazy { SimpleDateFormat("yyyy-MM-dd'T'kk:mm:ss", Locale.US) }
+    private val formats = listOf(
+        SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US),
+        SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.US)
+    ).onEach { it.timeZone = TimeZone.getTimeZone("UTC") }
 
     @Throws(
         ParserConfigurationException::class,
@@ -108,7 +112,7 @@ class GpxParser {
 
                         link = Link(href, text)
                     }
-                    TIME_NODE -> time = dateFormat.parse(currentNode.firstChild.nodeValue)
+                    TIME_NODE -> time = parseGpxTime(currentNode.firstChild.nodeValue)
                 }
             }
         }
@@ -226,7 +230,7 @@ class GpxParser {
                 val currentNode = childNodes.item(idx)
                 when (currentNode.nodeName) {
                     ELE_NODE -> elevation = currentNode.firstChild.nodeValue.toDouble()
-                    TIME_NODE -> time = dateFormat.parse(currentNode.firstChild.nodeValue)
+                    TIME_NODE -> time = parseGpxTime(currentNode.firstChild.nodeValue)
                     NAME_NODE -> name = currentNode.firstChild.nodeValue
                     SPEED_NODE -> speed = currentNode.firstChild.nodeValue.toFloat()
                     CMT_NODE -> comment = currentNode.firstChild.nodeValue
@@ -270,5 +274,20 @@ class GpxParser {
             ageOfGPSData = ageOfGPSData,
             dGpsId = dGpsId
         )
+    }
+
+    @VisibleForTesting
+    fun parseGpxTime(raw: String): Date? {
+        // GPX spec uses Z for UTC — replace with +0000
+        val adjusted = if (raw.endsWith("Z")) {
+            raw.dropLast(1) + "+0000"
+        } else raw
+
+        for (fmt in formats) {
+            try {
+                return fmt.parse(adjusted)
+            } catch (_: Exception) { }
+        }
+        return null
     }
 }
