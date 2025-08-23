@@ -34,5 +34,7 @@ class GpxParserTest {
         val parsedText = link?.text
         val wantedText = "Garmin Connect"
         assertEquals(wantedText, parsedText)
+
+        assertEquals(825.649, gpxParser.sanitizeNodeValue("\"825.649\"")?.toDouble())
     }
 }

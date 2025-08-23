@@ -138,7 +138,7 @@ class GpxParser {
                     CMT_NODE -> comment = currentNode.firstChild.nodeValue
                     DESC_NODE -> description = currentNode.firstChild.nodeValue
                     SRC_NODE -> src = currentNode.firstChild.nodeValue
-                    NUMBER_NODE -> number = currentNode.firstChild.nodeValue.toInt()
+                    NUMBER_NODE -> number = sanitizeNodeValue(currentNode.firstChild.nodeValue)?.toIntOrNull()
                     TYPE_NODE -> type = currentNode.firstChild.nodeValue
                     TRKSEG_NODE -> trackPoints.addAll(parseTrackSeg(currentNode))
                 }
@@ -173,7 +173,7 @@ class GpxParser {
                     CMT_NODE -> comment = currentNode.firstChild.nodeValue
                     DESC_NODE -> description = currentNode.firstChild.nodeValue
                     SRC_NODE -> src = currentNode.firstChild.nodeValue
-                    NUMBER_NODE -> number = currentNode.firstChild.nodeValue.toInt()
+                    NUMBER_NODE -> number = sanitizeNodeValue(currentNode.firstChild.nodeValue)?.toIntOrNull()
                     TYPE_NODE -> type = currentNode.firstChild.nodeValue
                     RTEPT_NODE -> routePoints.add(parseWayPoint(currentNode))
                 }
@@ -229,32 +229,32 @@ class GpxParser {
             for (idx in 0 until childNodes.length) {
                 val currentNode = childNodes.item(idx)
                 when (currentNode.nodeName) {
-                    ELE_NODE -> elevation = currentNode.firstChild.nodeValue.toDouble()
+                    ELE_NODE -> elevation = sanitizeNodeValue(currentNode.firstChild.nodeValue)?.toDoubleOrNull()
                     TIME_NODE -> time = parseGpxTime(currentNode.firstChild.nodeValue)
                     NAME_NODE -> name = currentNode.firstChild.nodeValue
-                    SPEED_NODE -> speed = currentNode.firstChild.nodeValue.toFloat()
+                    SPEED_NODE -> speed = sanitizeNodeValue(currentNode.firstChild.nodeValue)?.toFloatOrNull()
                     CMT_NODE -> comment = currentNode.firstChild.nodeValue
                     DESC_NODE -> description = currentNode.firstChild.nodeValue
                     SRC_NODE -> src = currentNode.firstChild.nodeValue
-                    MAGVAR_NODE -> magneticDeclination = currentNode.firstChild.nodeValue.toDouble()
-                    GEOIDHEIGHT_NODE -> geoIdHeight = currentNode.firstChild.nodeValue.toDouble()
+                    MAGVAR_NODE -> magneticDeclination = sanitizeNodeValue(currentNode.firstChild.nodeValue)?.toDoubleOrNull()
+                    GEOIDHEIGHT_NODE -> geoIdHeight = sanitizeNodeValue(currentNode.firstChild.nodeValue)?.toDoubleOrNull()
                     SYM_NODE -> sym = currentNode.firstChild.nodeValue
                     FIX_NODE -> fix =
                         FixType.entries.first { it.value == node.firstChild.nodeValue }
                     TYPE_NODE -> type = currentNode.firstChild.nodeValue
-                    SAT_NODE -> sat = currentNode.firstChild.nodeValue.toInt()
-                    HDOP_NODE -> hDop = currentNode.firstChild.nodeValue.toDouble()
-                    VDOP_NODE -> vDop = currentNode.firstChild.nodeValue.toDouble()
-                    PDOP_NODE -> pDop = currentNode.firstChild.nodeValue.toDouble()
-                    AGEOFGPSDATA_NODE -> ageOfGPSData = currentNode.firstChild.nodeValue.toDouble()
-                    DGPSID_NODE -> dGpsId = currentNode.firstChild.nodeValue.toInt()
+                    SAT_NODE -> sat = sanitizeNodeValue(currentNode.firstChild.nodeValue)?.toIntOrNull()
+                    HDOP_NODE -> hDop = sanitizeNodeValue(currentNode.firstChild.nodeValue)?.toDoubleOrNull()
+                    VDOP_NODE -> vDop = sanitizeNodeValue(currentNode.firstChild.nodeValue)?.toDoubleOrNull()
+                    PDOP_NODE -> pDop = sanitizeNodeValue(currentNode.firstChild.nodeValue)?.toDoubleOrNull()
+                    AGEOFGPSDATA_NODE -> ageOfGPSData = sanitizeNodeValue(currentNode.firstChild.nodeValue)?.toDoubleOrNull()
+                    DGPSID_NODE -> dGpsId = sanitizeNodeValue(currentNode.firstChild.nodeValue)?.toIntOrNull()
                 }
             }
         }
 
         return WayPoint(
-            latitude = node.attributes.getNamedItem(LAT_ATTR).nodeValue.toDouble(),
-            longitude = node.attributes.getNamedItem(LON_ATTR).nodeValue.toDouble(),
+            latitude = sanitizeNodeValue(node.attributes.getNamedItem(LAT_ATTR).nodeValue)?.toDoubleOrNull() ?: 0.0,
+            longitude = sanitizeNodeValue(node.attributes.getNamedItem(LON_ATTR).nodeValue)?.toDoubleOrNull() ?: 0.0,
             elevation = elevation,
             time = time,
             speed = speed,
@@ -274,6 +274,14 @@ class GpxParser {
             ageOfGPSData = ageOfGPSData,
             dGpsId = dGpsId
         )
+    }
+
+    @VisibleForTesting
+    fun sanitizeNodeValue(nodeValue: String?): String? {
+        return nodeValue
+            ?.trim()                // remove spaces/newlines
+            ?.trim('"', '\'')       // strip stray quotes
+            ?.replace(',', '.')     // normalize decimal separator
     }
 
     @VisibleForTesting

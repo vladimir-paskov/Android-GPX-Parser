@@ -8,8 +8,8 @@ android {
     defaultConfig {
         minSdkVersion 23
         targetSdkVersion 36
-        versionCode 4
-        versionName "1.0.4"
+        versionCode 5
+        versionName "1.0.5"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
     }
@@ -61,7 +61,7 @@ publishing {
         create("release", MavenPublication) {
             groupId = 'com.vmsoft'
             artifactId = 'agpx'
-            version = '1.0.4'
+            version = '1.0.5'
 
             // Let Gradle attach the AAR and sources produced by the 'release' component
             afterEvaluate {
