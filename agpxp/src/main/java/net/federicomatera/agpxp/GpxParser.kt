@@ -65,8 +65,8 @@ class GpxParser {
         for (idx in 0 until attrs.length) {
             val attr = attrs.item(idx)
             when (attr.nodeName) {
-                VERSION_ATTR -> version = attr.nodeValue
-                CREATOR_ATTR -> creator = attr.nodeValue
+                VERSION_ATTR -> version = attr?.nodeValue
+                CREATOR_ATTR -> creator = attr?.nodeValue
             }
         }
 
@@ -112,7 +112,7 @@ class GpxParser {
 
                         link = Link(href, text)
                     }
-                    TIME_NODE -> time = parseGpxTime(currentNode.firstChild.nodeValue)
+                    TIME_NODE -> time = parseGpxTime(currentNode.firstChild?.nodeValue)
                 }
             }
         }
@@ -134,12 +134,12 @@ class GpxParser {
             for (idx in 0 until nodes.length) {
                 val currentNode = nodes.item(idx)
                 when (currentNode.nodeName) {
-                    NAME_NODE -> name = currentNode.firstChild.nodeValue
-                    CMT_NODE -> comment = currentNode.firstChild.nodeValue
-                    DESC_NODE -> description = currentNode.firstChild.nodeValue
-                    SRC_NODE -> src = currentNode.firstChild.nodeValue
-                    NUMBER_NODE -> number = sanitizeNodeValue(currentNode.firstChild.nodeValue)?.toIntOrNull()
-                    TYPE_NODE -> type = currentNode.firstChild.nodeValue
+                    NAME_NODE -> name = currentNode.firstChild?.nodeValue
+                    CMT_NODE -> comment = currentNode.firstChild?.nodeValue
+                    DESC_NODE -> description = currentNode.firstChild?.nodeValue
+                    SRC_NODE -> src = currentNode.firstChild?.nodeValue
+                    NUMBER_NODE -> number = sanitizeNodeValue(currentNode.firstChild?.nodeValue)?.toIntOrNull()
+                    TYPE_NODE -> type = currentNode.firstChild?.nodeValue
                     TRKSEG_NODE -> trackPoints.addAll(parseTrackSeg(currentNode))
                 }
             }
@@ -169,12 +169,12 @@ class GpxParser {
             for (idx in 0 until nodes.length) {
                 val currentNode = nodes.item(idx)
                 when (currentNode.nodeName) {
-                    NAME_NODE -> name = currentNode.firstChild.nodeValue
-                    CMT_NODE -> comment = currentNode.firstChild.nodeValue
-                    DESC_NODE -> description = currentNode.firstChild.nodeValue
-                    SRC_NODE -> src = currentNode.firstChild.nodeValue
-                    NUMBER_NODE -> number = sanitizeNodeValue(currentNode.firstChild.nodeValue)?.toIntOrNull()
-                    TYPE_NODE -> type = currentNode.firstChild.nodeValue
+                    NAME_NODE -> name = currentNode.firstChild?.nodeValue
+                    CMT_NODE -> comment = currentNode.firstChild?.nodeValue
+                    DESC_NODE -> description = currentNode.firstChild?.nodeValue
+                    SRC_NODE -> src = currentNode.firstChild?.nodeValue
+                    NUMBER_NODE -> number = sanitizeNodeValue(currentNode.firstChild?.nodeValue)?.toIntOrNull()
+                    TYPE_NODE -> type = currentNode.firstChild?.nodeValue
                     RTEPT_NODE -> routePoints.add(parseWayPoint(currentNode))
                 }
             }
@@ -229,32 +229,32 @@ class GpxParser {
             for (idx in 0 until childNodes.length) {
                 val currentNode = childNodes.item(idx)
                 when (currentNode.nodeName) {
-                    ELE_NODE -> elevation = sanitizeNodeValue(currentNode.firstChild.nodeValue)?.toDoubleOrNull()
+                    ELE_NODE -> elevation = sanitizeNodeValue(currentNode.firstChild?.nodeValue)?.toDoubleOrNull()
                     TIME_NODE -> time = parseGpxTime(currentNode.firstChild.nodeValue)
-                    NAME_NODE -> name = currentNode.firstChild.nodeValue
-                    SPEED_NODE -> speed = sanitizeNodeValue(currentNode.firstChild.nodeValue)?.toFloatOrNull()
-                    CMT_NODE -> comment = currentNode.firstChild.nodeValue
-                    DESC_NODE -> description = currentNode.firstChild.nodeValue
-                    SRC_NODE -> src = currentNode.firstChild.nodeValue
-                    MAGVAR_NODE -> magneticDeclination = sanitizeNodeValue(currentNode.firstChild.nodeValue)?.toDoubleOrNull()
-                    GEOIDHEIGHT_NODE -> geoIdHeight = sanitizeNodeValue(currentNode.firstChild.nodeValue)?.toDoubleOrNull()
-                    SYM_NODE -> sym = currentNode.firstChild.nodeValue
+                    NAME_NODE -> name = currentNode.firstChild?.nodeValue
+                    SPEED_NODE -> speed = sanitizeNodeValue(currentNode.firstChild?.nodeValue)?.toFloatOrNull()
+                    CMT_NODE -> comment = currentNode.firstChild?.nodeValue
+                    DESC_NODE -> description = currentNode.firstChild?.nodeValue
+                    SRC_NODE -> src = currentNode.firstChild?.nodeValue
+                    MAGVAR_NODE -> magneticDeclination = sanitizeNodeValue(currentNode.firstChild?.nodeValue)?.toDoubleOrNull()
+                    GEOIDHEIGHT_NODE -> geoIdHeight = sanitizeNodeValue(currentNode.firstChild?.nodeValue)?.toDoubleOrNull()
+                    SYM_NODE -> sym = currentNode.firstChild?.nodeValue
                     FIX_NODE -> fix =
-                        FixType.entries.first { it.value == node.firstChild.nodeValue }
-                    TYPE_NODE -> type = currentNode.firstChild.nodeValue
-                    SAT_NODE -> sat = sanitizeNodeValue(currentNode.firstChild.nodeValue)?.toIntOrNull()
-                    HDOP_NODE -> hDop = sanitizeNodeValue(currentNode.firstChild.nodeValue)?.toDoubleOrNull()
-                    VDOP_NODE -> vDop = sanitizeNodeValue(currentNode.firstChild.nodeValue)?.toDoubleOrNull()
-                    PDOP_NODE -> pDop = sanitizeNodeValue(currentNode.firstChild.nodeValue)?.toDoubleOrNull()
-                    AGEOFGPSDATA_NODE -> ageOfGPSData = sanitizeNodeValue(currentNode.firstChild.nodeValue)?.toDoubleOrNull()
-                    DGPSID_NODE -> dGpsId = sanitizeNodeValue(currentNode.firstChild.nodeValue)?.toIntOrNull()
+                        FixType.entries.first { it.value == node.firstChild?.nodeValue }
+                    TYPE_NODE -> type = currentNode.firstChild?.nodeValue
+                    SAT_NODE -> sat = sanitizeNodeValue(currentNode.firstChild?.nodeValue)?.toIntOrNull()
+                    HDOP_NODE -> hDop = sanitizeNodeValue(currentNode.firstChild?.nodeValue)?.toDoubleOrNull()
+                    VDOP_NODE -> vDop = sanitizeNodeValue(currentNode.firstChild?.nodeValue)?.toDoubleOrNull()
+                    PDOP_NODE -> pDop = sanitizeNodeValue(currentNode.firstChild?.nodeValue)?.toDoubleOrNull()
+                    AGEOFGPSDATA_NODE -> ageOfGPSData = sanitizeNodeValue(currentNode.firstChild?.nodeValue)?.toDoubleOrNull()
+                    DGPSID_NODE -> dGpsId = sanitizeNodeValue(currentNode.firstChild?.nodeValue)?.toIntOrNull()
                 }
             }
         }
 
         return WayPoint(
-            latitude = sanitizeNodeValue(node.attributes.getNamedItem(LAT_ATTR).nodeValue)?.toDoubleOrNull() ?: 0.0,
-            longitude = sanitizeNodeValue(node.attributes.getNamedItem(LON_ATTR).nodeValue)?.toDoubleOrNull() ?: 0.0,
+            latitude = sanitizeNodeValue(node.attributes.getNamedItem(LAT_ATTR)?.nodeValue)?.toDoubleOrNull() ?: 0.0,
+            longitude = sanitizeNodeValue(node.attributes.getNamedItem(LON_ATTR)?.nodeValue)?.toDoubleOrNull() ?: 0.0,
             elevation = elevation,
             time = time,
             speed = speed,
@@ -285,11 +285,13 @@ class GpxParser {
     }
 
     @VisibleForTesting
-    fun parseGpxTime(raw: String): Date? {
+    fun parseGpxTime(raw: String?): Date? {
+        val timeString = raw ?: return null
+
         // GPX spec uses Z for UTC — replace with +0000
-        val adjusted = if (raw.endsWith("Z")) {
-            raw.dropLast(1) + "+0000"
-        } else raw
+        val adjusted = if (timeString.endsWith("Z")) {
+            timeString.dropLast(1) + "+0000"
+        } else timeString
 
         for (fmt in formats) {
             try {
